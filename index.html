@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solver</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center">Continuous Knapsack Solver</h1>
+        <div class="row d-flex justify-content-center">
+            <form name="form" class="col-12 col-md-6">
+                <div class="mb3">
+                    <label for="size">Knapsack size</label>
+                    <input type="number" class="form-control" name="size" id="size">
+                </div>
+                <div class="mb3">
+                    <label for="values">Items values</label>
+                    <input type="text" class="form-control" name="values" id="values">
+                </div>
+                <div class="mb3">
+                    <label for="weights">Items weights</label>
+                    <input type="text" class="form-control" name="weights" id="weights">
+                </div>
+            </form>
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button onclick="calc();" class="btn btn-primary">Solve</button>
+            </div>
+            <div class="col-12 container-fluid" id="result">
+                <div class="row justify-content-center">
+                    <h3 class="col-12 text-center">Used items (indexes 1 - n)</h3>
+                    <div id="items" class="col-6 text-center">0</div>
+                    <h3 class="col-12 text-center">Max value</h3>
+                    <div id="value" class="col-6 text-center">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+    <script>
+
+        function calc(){
+            let size = document.form.size.value;
+            let weights = document.form.weights.value.split(",");
+            let values = document.form.values.value.split(",");
+            let ratio = [];
+            let tmp;
+            let fractions = [];
+            for(let i = 0; i < weights.length; i++){
+                tmp = [];
+                tmp.push(i);
+                tmp.push(parseFloat(values[i]) / parseFloat(weights[i]));
+                ratio.push(tmp);
+                fractions.push(0);
+            }
+            ratio.sort(function(a, b){
+                return b[1] - a[1];
+            });
+            console.log(ratio);
+            let max_value = 0;
+            let used_items = [];
+
+            for(let i = 0; i < ratio.length; i++){
+                if(parseFloat(weights[ratio[i][0]]) <= size){
+                    fractions[ratio[i][0]] = 1;
+                    max_value += parseFloat(values[ratio[i][0]]);
+                    size -= parseFloat(weights[ratio[i][0]]);
+                    used_items.push(ratio[i][0]+1);
+                }else{
+                    fractions[ratio[i][0]] = size/parseFloat(weights[ratio[i][0]]);
+                    max_value += parseFloat(values[ratio[i][0]])*fractions[ratio[i][0]];
+                    used_items.push(ratio[i][0]+1);
+                    break;
+                }
+            }
+            document.querySelector("#result #items").innerHTML = used_items;
+            document.querySelector("#result #value").innerHTML = max_value;
+            
+        }
+    </script>
+</body>
+</html>
