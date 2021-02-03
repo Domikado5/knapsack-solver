@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solver</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center">Knapsack Solver</h1>
+        <div class="row d-flex justify-content-center">
+            <a href="./index.html" class="col-12 text-center">Go back</a>
+            <form name="form" class="col-12 col-md-6">
+                <div class="mb3">
+                    <label for="size">Knapsack size</label>
+                    <input type="number" class="form-control" name="size" id="size">
+                </div>
+                <div class="mb3">
+                    <label for="values">Items values</label>
+                    <input type="text" class="form-control" name="values" id="values">
+                </div>
+                <div class="mb3">
+                    <label for="weights">Items weights</label>
+                    <input type="text" class="form-control" name="weights" id="weights">
+                </div>
+            </form>
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button onclick="backpack();" class="btn btn-primary">Solve</button>
+            </div>
+            <div class="col-12 container-fluid" id="result">
+                <div class="row justify-content-center">
+                    <h3 class="col-12 text-center">Used items</h3>
+                    <div id="items" class="col-6 text-center">0</div>
+                    <h3 class="col-12 text-center">Max value</h3>
+                    <div id="value" class="col-6 text-center">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+    <script>
+
+        function backpack() {
+            const maxSizeKnapsack = parseInt(document.querySelector("#size").value);
+            let W = document.querySelector("#values").value.split(",");
+            let S = document.querySelector("#weights").value.split(",");
+            const n = W.length;
+            for(let i = 0; i < n; i++){
+                W[i] = parseInt(W[i]);
+                S[i] = parseInt(S[i]);
+            }
+          
+            if (W.length != S.length) {
+              console.log("Wrong length")
+              return;
+            }
+          
+            const P = W.reduce((a, b) => a + b);
+            const tab = Array.from({
+              length: P + 1
+            }, i => Array.from({
+              length: n + 1
+            }, j => j = 0));
+            const INF = '-';
+            for (let j = 1; j <= P; j++) tab[0][j] = INF;
+            for (let i = 1; i <= n; i++) {
+              for (let j = 1; j <= P; j++) {
+                const size = S[i - 1];
+                const value = W[i - 1];
+                if (value <= j) {
+                  if (tab[i - 1][j - value] == INF && tab[i - 1][j] == INF) tab[i][j] = INF;
+                  else if (tab[i - 1][j] == INF) tab[i][j] = tab[i - 1][j - value] + size;
+                  else if (tab[i - 1][j - value] == INF) tab[i][j] = tab[i - 1][j];
+                  else tab[i][j] = Math.min(tab[i - 1][j], tab[i - 1][j - value] + size)
+                } else tab[i][j] = tab[i - 1][j]
+              }
+            }
+          
+            let firstIndexSelectedItem = P;
+            let sumValuesSelectedItem = 0;
+            let sumSizesSelectedItem = 0;
+            const resultSelectedItem = Array.from({
+              length: n
+            }, e => e = 0);
+            for (let j = P - 1; j > 0; j--) {
+              if (tab[n][j] != INF && tab[n][j] <= maxSizeKnapsack) {
+                sumSizesSelectedItem = tab[n][j]
+                firstIndexSelectedItem = j
+                break;
+              }
+            }
+          
+            let index = firstIndexSelectedItem;
+            for (let i = n; i > 0; i--) {
+              if (tab[i - 1][index] != tab[i][index]) {
+                resultSelectedItem[i - 1] = 1
+                index -= W[i - 1]
+              }
+            }
+            for (let x = 0; x < n; x++) sumValuesSelectedItem += W[x] * resultSelectedItem[x]
+          
+            if (index != 0) {
+              console.log("\nIncorrect result");
+              return;
+            }
+          
+            console.log("Sum sizes of selected items", sumSizesSelectedItem);
+            console.log("Sum values of selected items", sumValuesSelectedItem);
+            console.log("Selected items", resultSelectedItem);
+          
+            console.table(tab.slice(0, n + 1));
+            document.querySelector("#items").innerHTML = resultSelectedItem;
+            document.querySelector("#value").innerHTML = sumValuesSelectedItem;
+          }
+    </script>
+</body>
+</html>
