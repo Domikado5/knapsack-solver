@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solver</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center">Floyd Warshall</h1>
+        <div class="row d-flex justify-content-center">
+            <a href="./index.html" class="col-12 text-center">Go back</a>
+            <form name="form" class="col-12 col-md-6">
+                <div class="mb3">
+                    <label for="size">Matrix size</label>
+                    <input type="number" class="form-control" id="size">
+                </div>
+                <div class="mb3">
+                    <label for="matrix">Matrix</label>
+                    <table class="table" id="matrix">
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button onclick="prep();" class="btn btn-primary">Make empty matrix</button>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button onclick="calc();" class="btn btn-primary">Solve</button>
+            </div>
+            <div class="col-12 container-fluid" id="result">
+                <table class="table table-dark">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+    <script>
+
+        function prep(){
+            let size = document.querySelector("#size").value;
+            let table = document.querySelector("#matrix tbody");
+            table.innerHTML = "";
+            let tableRow;
+            let tableCell;
+            let input;
+            for(let i=0; i < size; i++){
+                tableRow = document.createElement("tr");
+                for(let j=0; j < size; j++){
+                    tableCell = document.createElement("td");
+                    tableCell.setAttribute("contenteditable", 'true');
+                    if(i == j){
+                        tableCell.innerHTML += "0";
+                    }else{
+                        tableCell.innerHTML += "Infinity";
+                    }
+                    tableRow.appendChild(tableCell);
+                }
+                table.appendChild(tableRow);
+            }
+        }
+
+        function calc(){
+            let size = document.querySelector("#size").value;
+            let rows = document.querySelectorAll("#matrix tbody tr")
+            let matrix = [];
+            let row = [];
+            let cells;
+            let cell;
+            console.log(rows[0])
+            for(let i = 0; i < size; i++){
+                cells = rows[i].children;
+                row = [];
+                for(let j = 0; j < cells.length; j++){
+                    cell = parseFloat(cells[j].innerHTML);
+                    row.push(cell);
+                }
+                matrix.push(row);
+            }
+            
+            for(let k = 0; k < size; k++){
+                for(let i = 0; i < size; i++){
+                    for(let j = 0; j < size; j++){
+                        if(matrix[i][j] > matrix[i][k] + matrix[k][j]){
+                            matrix[i][j] = matrix[i][k] + matrix[k][j]
+                        }
+                    }
+                }
+            }
+
+            let table = document.querySelector("#result table.table tbody");
+            table.innerHTML = "";
+            let tableRow;
+            let tableCell;
+            for(let k = 0; k < size; k++){
+                tableRow = document.createElement("tr");
+                for(let i = 0; i < size; i++){
+                    tableCell = document.createElement("td");
+                    tableCell.innerHTML = matrix[k][i];
+                    tableRow.appendChild(tableCell);
+                }
+                table.appendChild(tableRow);
+            }
+        }
+    </script>
+</body>
+</html>
